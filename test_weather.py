@@ -14,7 +14,7 @@ class DescribeOpenWeatherMap:
         self.weather = weathercli.OpenWeatherMap()
 
     def it_passes_query_to_url(self):
-        with mock.patch('weathercli.urllib.urlopen') as mock_urlopen:
+        with mock.patch('weathercli.urllib.request.urlopen') as mock_urlopen:
             mock_urlopen.return_value.read.return_value = json.dumps({
                 'main': {
                     'temp': 1
@@ -25,14 +25,14 @@ class DescribeOpenWeatherMap:
                         'icon': '123',
                     },
                 ],
-            })
+            }).encode('utf-8')
 
             self.weather.now('chelsea,ma')
 
             mock_urlopen.assert_called_with('http://api.openweathermap.org/data/2.5/weather?q=chelsea%2Cma&units=imperial')
 
     def it_passes_units_along_to_query(self):
-        with mock.patch('weathercli.urllib.urlopen') as mock_urlopen:
+        with mock.patch('weathercli.urllib.request.urlopen') as mock_urlopen:
             mock_urlopen.return_value.read.return_value = json.dumps({
                 'main': {
                     'temp': 1
@@ -50,25 +50,25 @@ class DescribeOpenWeatherMap:
             mock_urlopen.assert_called_with('http://api.openweathermap.org/data/2.5/weather?q=chelsea%2Cma&units=metric')
 
     def it_raises_an_error_when_given_a_bad_response(self):
-        with mock.patch('weathercli.urllib.urlopen') as mock_urlopen:
+        with mock.patch('weathercli.urllib.request.urlopen') as mock_urlopen:
             mock_urlopen.return_value.read.return_value = '{'
 
             with pytest.raises(weathercli.WeatherDataError) as cm:
                 self.weather.now('chelsea,ma')
 
-            assert cm.value.message == "Malformed response from weather service"
+            assert cm.value.__str__() == "Malformed response from weather service"
 
     def it_raises_an_error_when_elements_arent_found(self):
-        with mock.patch('weathercli.urllib.urlopen') as mock_urlopen:
+        with mock.patch('weathercli.urllib.request.urlopen') as mock_urlopen:
             mock_urlopen.return_value.read.return_value = '{}'
 
             with pytest.raises(weathercli.WeatherDataError) as cm:
                 self.weather.now('chelsea,ma')
 
-            assert cm.value.message == "No conditions reported for your search"
+            assert cm.value.__str__() == "No conditions reported for your search"
 
     def it_calls_the_formatter_with_correct_parameters(self):
-        with mock.patch('weathercli.urllib.urlopen') as mock_urlopen:
+        with mock.patch('weathercli.urllib.request.urlopen') as mock_urlopen:
             mock_urlopen.return_value.read.return_value = json.dumps({
                 'main': {
                     'temp': 35
@@ -124,7 +124,7 @@ class DescribeOpenWeatherMap:
 
 
 class DescribeGetTempColor:
-    
+
     def it_is_blue_when_cold(self):
         assert weathercli.get_temp_color("It's 45 degrees and snowing") == 'blue'
 
