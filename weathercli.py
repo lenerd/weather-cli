@@ -6,7 +6,9 @@ import json
 import os
 import re
 import sys
-import urllib
+# import urllib
+import urllib.request
+import urllib.parse
 
 from clint.textui import puts, colored
 
@@ -45,11 +47,14 @@ class OpenWeatherMap(object):
         self.formatter = formatter
 
     def now(self, query, units='imperial'):
-        raw_data = urllib.urlopen('http://api.openweathermap.org/data/2.5/weather?q={0}&units={1}'.format(
-            urllib.quote_plus(query),
+        raw_data = urllib.request.urlopen('http://api.openweathermap.org/data/2.5/weather?q={0}&units={1}'.format(
+            urllib.parse.quote_plus(query),
             units
         )).read()
-        
+
+        if isinstance(raw_data, bytes):
+            raw_data = raw_data.decode('utf-8')
+
         try:
             weather = json.loads(raw_data)
         except ValueError:
@@ -117,7 +122,7 @@ def get_temp_color(conditions):
         (60, 'blue'),
         (80, 'yellow')
     ]
-        
+
     temperature_re = re.compile('(?P<temperature>-?\d+)')
     match = temperature_re.search(conditions)
     if match:
@@ -126,7 +131,7 @@ def get_temp_color(conditions):
                 return color[1]
         return 'red'
     return 'white'
-    
+
 
 class Weather(object):
 
@@ -139,13 +144,14 @@ class Weather(object):
         weather_provider = OpenWeatherMap(formatter=formatter)
 
         if not args['query']:
-            print arguments.help()
+            print(arguments.help())
             sys.exit(1)
 
         try:
             conditions = weather_provider.now(args['query'], args['units'])
         except WeatherDataError as e:
-            print >> sys.stderr, "ERROR: {0}".format(e.message)
+            # print >> sys.stderr, "ERROR: {0}".format(e.message)
+            print("ERROR: {0}".format(e), file=sys.stderr)
             sys.exit(1)
 
         puts(getattr(colored, get_temp_color(conditions))(conditions))
