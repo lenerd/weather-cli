@@ -18,7 +18,7 @@ setup(
     install_requires=['clint==0.3.4'],
     entry_points={
         'console_scripts': [
-            'weather=bin:main',
+            'weather = weathercli:Weather.main',
             ],
         },
     classifiers=[
