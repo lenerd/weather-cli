@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 import os
 
 
@@ -16,7 +16,11 @@ setup(
     py_modules=['weathercli'],
     long_description=read('README.mkd'),
     install_requires=['clint==0.3.4'],
-    scripts=['bin/weather'],
+    entry_points={
+        'console_scripts': [
+            'weather=bin:main',
+            ],
+        },
     classifiers=[
         'Environment :: Console',
         'License :: OSI Approved :: BSD License',
