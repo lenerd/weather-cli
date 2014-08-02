@@ -18,12 +18,17 @@ CLOUDS = u'\u2601'
 RAIN = u'\u2602'
 SNOW = u'\u2603'
 
+UNIT_SYMBOL = {
+        'imperial': '°F',
+        'metric': '°C',
+    }
 
 class VerboseFormatter(object):
 
     def output(self, context):
-        return u"It's {0}\u00B0 and {1}".format(
+        return u"It's {0}{1} and {2}".format(
             context['temp'],
+            UNIT_SYMBOL[context['unit']],
             context['conditions'].lower()
         )
 
@@ -31,8 +36,9 @@ class VerboseFormatter(object):
 class IconifyFormatter(object):
 
     def output(self, context):
-        return u"{0}\u00B0{1}".format(
+        return u"{0}{1}{2}".format(
             context['temp'],
+            UNIT_SYMBOL[context['unit']],
             context['icon']
         )
 
@@ -63,6 +69,7 @@ class OpenWeatherMap(object):
         context = {}
         try:
             context['temp'] = int(weather['main']['temp'])
+            context['unit'] = units
             context['conditions'] = weather['weather'][0]['description']
             context['icon'] = self.icon(weather['weather'][0]['icon'])
         except KeyError:

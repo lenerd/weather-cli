@@ -85,7 +85,7 @@ class DescribeOpenWeatherMap:
 
             weather.now('chelsea,ma')
 
-            formatter.output.assert_called_with({'temp': 35, 'conditions': 'sky is clear', 'icon': u'\u2600'})
+            formatter.output.assert_called_with({'temp': 35, 'unit': 'imperial', 'conditions': 'sky is clear', 'icon': u'\u2600'})
 
     def it_converts_sunny_icon_code_to_our_code(self):
         assert self.weather.icon('01d') == weathercli.SUN
@@ -196,7 +196,8 @@ class DescribeVerboseFormatter:
     def it_returns_the_weather_written_out(self):
         formatter = weathercli.VerboseFormatter()
 
-        assert formatter.output({'temp': 10, 'conditions': 'cloudy'}) == u"It's 10\u00B0 and cloudy"
+        assert formatter.output({'temp': 10, 'unit': 'imperial', 'conditions': 'cloudy'}) == u"It's 10°F and cloudy"
+        assert formatter.output({'temp': 10, 'unit': 'metric', 'conditions': 'cloudy'}) == u"It's 10°C and cloudy"
 
 
 class DescribeIconifyFormatter:
@@ -205,4 +206,5 @@ class DescribeIconifyFormatter:
         self.formatter = weathercli.IconifyFormatter()
 
     def it_returns_the_weather_in_icon_format(self):
-        assert self.formatter.output({'temp': 10, 'icon': u'\u2600'}) == u"10\u00B0\u2600"
+        assert self.formatter.output({'temp': 10, 'unit': 'imperial', 'icon': u'\u2600'}) == u"10°F\u2600"
+        assert self.formatter.output({'temp': 10, 'unit': 'metric', 'icon': u'\u2600'}) == u"10°C\u2600"
